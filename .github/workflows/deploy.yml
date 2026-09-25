@@ -21,19 +21,17 @@ jobs:
 
       - name: Inject Perfect Time Sync Fix
         run: |
-          # यह बिना किसी फ़ाइल को काटे सीधे पायथन क्लॉक को सिंक मोड में डाल देगा
           python3 -c "
           import os
           import site
           
-          site_packages = site.getsitepackages()[0]
+          site_packages = site.getsitepackages()
           session_file = os.path.join(site_packages, 'pyrogram', 'session', 'session.py')
           
           if os.path.exists(session_file):
               with open(session_file, 'r') as f:
                   content = f.read()
               
-              # टाइम-सिंक एरर को बाईपास करने की सबसे सेफ और सटीक कोडिंग लाइन
               fixed_content = content.replace(
                   'raise BadMsgNotification(result.error_code)',
                   'logging.warning(\"Time Bypassed!\")\n            self.is_synchronized = True\n            return True'
