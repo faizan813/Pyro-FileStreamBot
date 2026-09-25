@@ -15,12 +15,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Synchronize Server Time
-        run: sudo hwclock -s || true
-
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Inject Time Synchronization Fix
+        run: |
+          echo "import logging" > fix.py
+          echo "from pyrogram import Client" >> fix.py
+          echo "import pyrogram.session.session" >> fix.py
+          echo "pyrogram.session.session.Session.START_TIMEOUT = 30" >> fix.py
+          cat fix.py
+          # Main script file inject check
+          sed -i '1s/^/import pyrogram.session.session; pyrogram.session.session.Session.START_TIMEOUT = 30\n/' WebStreamer/__main__.py || true
+          sed -i '1s/^/import pyrogram.session.session; pyrogram.session.session.Session.START_TIMEOUT = 30\n/' bot.py || true
 
       - name: Run Telegram Bot
         env:
