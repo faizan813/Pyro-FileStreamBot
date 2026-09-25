@@ -15,32 +15,9 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
+      - name: Install Stable Packages
         run: |
-          pip install -r requirements.txt
-
-      - name: Inject Perfect Time Sync Fix
-        run: |
-          python3 -c "
-          import os
-          import site
-          
-          site_packages = site.getsitepackages()
-          session_file = os.path.join(site_packages, 'pyrogram', 'session', 'session.py')
-          
-          if os.path.exists(session_file):
-              with open(session_file, 'r') as f:
-                  content = f.read()
-              
-              fixed_content = content.replace(
-                  'raise BadMsgNotification(result.error_code)',
-                  'logging.warning(\"Time Bypassed!\")\n            self.is_synchronized = True\n            return True'
-              )
-              
-              with open(session_file, 'w') as f:
-                  f.write(fixed_content)
-              print('Master clock patch applied flawlessly!')
-          "
+          pip install tgcrypto motor aiohttp pyrogram==1.4.16
 
       - name: Run Telegram Bot
         env:
