@@ -17,20 +17,13 @@ jobs:
 
       - name: Install All Dependencies
         run: |
-          pip install tgcrypto motor aiohttp python-dotenv hydrogram
-          # Redirecting Pyrogram imports to Hydrogram to fix all clock bugs permanently
-          python3 -c "
-          import os, sys
-          for root, dirs, files in os.walk('.'):
-              for file in files:
-                  if file.endswith('.py'):
-                      fp = os.path.join(root, file)
-                      with open(fp, 'r') as f: content = f.read()
-                      if 'pyrogram' in content:
-                          content = content.replace('pyrogram', 'hydrogram')
-                          with open(fp, 'w') as f: f.write(content)
-          print('Imports successfully migrated to Hydrogram!')
-          "
+          pip install tgcrypto motor aiohttp python-dotenv pyrogram==1.4.16
+
+      - name: Force Sync Global Clock
+        run: |
+          # यह कमांड पूरे ऑपरेटिंग सिस्टम की घड़ी को सीधे इंटरनेट टाइम सर्वर से मिलाकर सिंक कर देगी
+          sudo timedatectl set-timezone UTC || true
+          sudo ntpdate -u ://google.com || true
 
       - name: Run Telegram Bot
         env:
