@@ -15,9 +15,9 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Stable Packages
+      - name: Install All Dependencies
         run: |
-          pip install tgcrypto motor aiohttp pyrogram==1.4.16
+          pip install tgcrypto motor aiohttp python-dotenv pyrogram==1.4.16
 
       - name: Run Telegram Bot
         env:
@@ -27,6 +27,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           BIN_CHANNEL: ${{ secrets.BIN_CHANNEL }}
           OWNER_ID: ${{ secrets.OWNER_ID }}
-          PORT: ${{ secrets.PORT }}
+          PORT: 8080
+          URL: 127.0.0.1
         run: python3 -m WebStreamer
         
