@@ -1,5 +1,6 @@
 import logging
 import asyncio
+from aiohttp import web
 from pyrogram import Client
 from WebStreamer.vars import Var
 from WebStreamer.bot import StreamBot
@@ -10,11 +11,11 @@ import pyrogram.session.session
 pyrogram.session.session.Session.START_TIMEOUT = 60
 
 async def main():
-    # Start the web server
+    # Start the web server correctly using aiohttp web components
     app = await web_server()
-    runner = asyncio.web.AppRunner(app)
+    runner = web.AppRunner(app)
     await runner.setup()
-    site = asyncio.web.TCPSite(runner, Var.BIND_ADDRESS, Var.PORT)
+    site = web.TCPSite(runner, Var.BIND_ADDRESS, Var.PORT)
     await site.start()
     logging.info(f"Server started on {Var.BIND_ADDRESS}:{Var.PORT}")
     
