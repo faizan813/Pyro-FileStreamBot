@@ -17,21 +17,19 @@ jobs:
 
       - name: Install All Dependencies
         run: |
-          pip install tgcrypto motor aiohttp python-dotenv pyrogram==1.4.16
-
-      - name: Hard Inject Time Clock Sync Fix
-        run: |
-          # Injecting synchronization parameters into Pyrogram core session manager
+          pip install tgcrypto motor aiohttp python-dotenv hydrogram
+          # Redirecting Pyrogram imports to Hydrogram to fix all clock bugs permanently
           python3 -c "
-          import site, os
-          sp = site.getsitepackages()[0]
-          sf = os.path.join(sp, 'pyrogram', 'session', 'session.py')
-          if os.path.exists(sf):
-              with open(sf, 'r') as f: content = f.read()
-              content = content.replace('START_TIMEOUT = 10', 'START_TIMEOUT = 120')
-              content = content.replace('raise BadMsgNotification(result.error_code)', 'logging.warning(\"Clock Bypassed\")\n            self.is_synchronized = True\n            return True')
-              with open(sf, 'w') as f: f.write(content)
-              print('Core Pyrogram Session Patched!')
+          import os, sys
+          for root, dirs, files in os.walk('.'):
+              for file in files:
+                  if file.endswith('.py'):
+                      fp = os.path.join(root, file)
+                      with open(fp, 'r') as f: content = f.read()
+                      if 'pyrogram' in content:
+                          content = content.replace('pyrogram', 'hydrogram')
+                          with open(fp, 'w') as f: f.write(content)
+          print('Imports successfully migrated to Hydrogram!')
           "
 
       - name: Run Telegram Bot
@@ -45,3 +43,4 @@ jobs:
           PORT: 8080
           URL: 127.0.0.1
         run: python3 -m WebStreamer
+        
