@@ -19,11 +19,18 @@ jobs:
         run: |
           pip install tgcrypto motor aiohttp python-dotenv pyrogram==1.4.16
 
-      - name: Force Sync Global Clock
+      - name: Core Connection Timeout Patch
         run: |
-          # यह कमांड पूरे ऑपरेटिंग सिस्टम की घड़ी को सीधे इंटरनेट टाइम सर्वर से मिलाकर सिंक कर देगी
-          sudo timedatectl set-timezone UTC || true
-          sudo ntpdate -u ://google.com || true
+          python3 -c "
+          import site, os
+          sp = site.getsitepackages()[0]
+          sf = os.path.join(sp, 'pyrogram', 'session', 'session.py')
+          if os.path.exists(sf):
+              with open(sf, 'r') as f: content = f.read()
+              content = content.replace('START_TIMEOUT = 10', 'START_TIMEOUT = 120')
+              with open(sf, 'w') as f: f.write(content)
+              print('Pyrogram timeout extended successfully!')
+          "
 
       - name: Run Telegram Bot
         env:
